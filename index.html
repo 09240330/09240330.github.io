@@ -1,0 +1,1799 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天赋潜能探索测试</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <!-- 统一的 Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        secondary: '#7c3aed',
+                        accent: '#06b6d4',
+                        light: '#e0f2fe',
+                        dark: '#1e1b4b'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-in': 'slideIn 0.5s ease-in-out',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .bg-gradient {
+                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            }
+            .transition-all-300 {
+                transition: all 300ms ease-in-out;
+            }
+            .card-hover {
+                transition: all 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.1), 0 10px 10px -5px rgba(79, 70, 229, 0.04);
+            }
+        }
+        
+        /* 自定义样式 */
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .question-card {
+            transition: all 0.3s ease;
+        }
+        
+        .question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.1), 0 10px 10px -5px rgba(79, 70, 229, 0.04);
+        }
+        
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .option-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .option-btn.active {
+            border-color: #4f46e5;
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+        
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+        
+        .result-card {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+        
+        .radar-chart-container {
+            position: relative;
+            height: 500px;
+            width: 100%;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
+            .radar-chart-container {
+                height: 400px;
+            }
+        }
+        
+        /* 天赋类型卡片样式 */
+        .talent-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .talent-card:hover {
+            transform: translateY(-5px);
+            border-color: #4f46e5;
+        }
+        
+        .talent-card.active {
+            border-color: #4f46e5;
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+        
+        /* 动画效果 */
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        /* 加载动画 */
+        .loader {
+            border-top-color: #4f46e5;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- 背景图 -->
+    <div class="fixed inset-0 z-0 opacity-10">
+        <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/86d8a0a28a8c4d4b90da35426c304e28~tplv-a9rns2rl98-image.image?rcl=202511132226417B7A080BD6C07C784E01&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765636029&x-signature=7nU4KpPsunYq8sNgvO8MdbElHBs%3D" 
+             alt="背景" class="w-full h-full object-cover">
+    </div>
+
+    <!-- 主容器 -->
+    <div class="relative z-10 min-h-screen flex flex-col">
+        <!-- 顶部导航 -->
+        <header class="bg-white bg-opacity-90 backdrop-blur-sm shadow-sm">
+            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center">
+                    <i class="fa fa-star text-primary text-2xl mr-2"></i>
+                    <h1 class="text-xl font-bold text-gray-800">天赋潜能探索测试</h1>
+                </div>
+                <nav>
+                    <ul class="hidden md:flex space-x-6">
+                        <li><a href="#" class="text-gray-600 hover:text-primary transition-all-300 font-medium" id="nav-home">首页</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary transition-all-300 font-medium" id="nav-test">开始测试</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary transition-all-300 font-medium" id="nav-results">测试结果</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary transition-all-300 font-medium" id="nav-about">关于测试</a></li>
+                    </ul>
+                    <!-- 移动端菜单按钮 -->
+                    <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-primary">
+                        <i class="fa fa-bars text-xl"></i>
+                    </button>
+                </nav>
+            </div>
+            <!-- 移动端菜单 -->
+            <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full z-50">
+                <ul class="py-2 px-4">
+                    <li><a href="#" class="block py-2 text-gray-600 hover:text-primary transition-all-300 font-medium" id="mobile-nav-home">首页</a></li>
+                    <li><a href="#" class="block py-2 text-gray-600 hover:text-primary transition-all-300 font-medium" id="mobile-nav-test">开始测试</a></li>
+                    <li><a href="#" class="block py-2 text-gray-600 hover:text-primary transition-all-300 font-medium" id="mobile-nav-results">测试结果</a></li>
+                    <li><a href="#" class="block py-2 text-gray-600 hover:text-primary transition-all-300 font-medium" id="mobile-nav-about">关于测试</a></li>
+                </ul>
+            </div>
+        </header>
+
+        <!-- 主内容区 -->
+        <main class="flex-grow container mx-auto px-4 py-8">
+            <!-- 首页 -->
+            <section id="section-home" class="animate-fade-in">
+                <div class="max-w-4xl mx-auto">
+                    <!-- 欢迎区域 -->
+                    <div class="text-center mb-12">
+                        <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-6 text-shadow">探索你的天赋潜能</h2>
+                        <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">每个人都拥有独特的天赋组合，这个测试将帮助你发现自己的优势智能，找到最适合你的发展方向。</p>
+                        
+                        <button id="start-test-btn" class="bg-gradient text-white text-lg font-medium py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all-300 transform hover:-translate-y-1">
+                            开始探索之旅
+                        </button>
+                    </div>
+                    
+                    <!-- 天赋类型预览 -->
+                    <div class="mb-12">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-6 text-center">八大智能维度</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <!-- 语言智能 -->
+                            <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                                <div class="text-primary text-3xl mb-4">
+                                    <i class="fa fa-book"></i>
+                                </div>
+                                <h4 class="text-xl font-semibold text-gray-800 mb-2">语言智能</h4>
+                                <p class="text-gray-600">擅长语言表达、写作与阅读理解，能有效进行沟通和交流。</p>
+                            </div>
+                            
+                            <!-- 逻辑数学智能 -->
+                            <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                                <div class="text-primary text-3xl mb-4">
+                                    <i class="fa fa-calculator"></i>
+                                </div>
+                                <h4 class="text-xl font-semibold text-gray-800 mb-2">逻辑数学智能</h4>
+                                <p class="text-gray-600">擅长逻辑推理、数据分析与问题解决，思维严密且有条理。</p>
+                            </div>
+                            
+                            <!-- 空间智能 -->
+                            <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                                <div class="text-primary text-3xl mb-4">
+                                    <i class="fa fa-cube"></i>
+                                </div>
+                                <h4 class="text-xl font-semibold text-gray-800 mb-2">空间智能</h4>
+                                <p class="text-gray-600">擅长视觉思考、空间想象与方向感，能理解三维空间关系。</p>
+                            </div>
+                            
+                            <!-- 音乐智能 -->
+                            <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                                <div class="text-primary text-3xl mb-4">
+                                    <i class="fa fa-music"></i>
+                                </div>
+                                <h4 class="text-xl font-semibold text-gray-800 mb-2">音乐智能</h4>
+                                <p class="text-gray-600">擅长理解音调、节奏与音乐结构，对声音敏感且有表现力。</p>
+                            </div>
+                            
+                            <!-- 身体运动智能 -->
+                            <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                                <div class="text-primary text-3xl mb-4">
+                                    <i class="fa fa-futbol-o"></i>
+                                </div>
+                                <h4 class="text-xl font-semibold text-gray-800 mb-2">身体运动智能</h4>
+                                <p class="text-gray-600">擅长运用身体、手部精细动作与协调能力，通过身体进行表达。</p>
+                            </div>
+                            
+                            <!-- 人际智能 -->
+                            <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                                <div class="text-primary text-3xl mb-4">
+                                    <i class="fa fa-users"></i>
+                                </div>
+                                <h4 class="text-xl font-semibold text-gray-800 mb-2">人际智能</h4>
+                                <p class="text-gray-600">擅长理解他人情感、沟通与合作，能很好地在团队中工作。</p>
+                            </div>
+                            
+                            <!-- 内省智能 -->
+                            <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                                <div class="text-primary text-3xl mb-4">
+                                    <i class="fa fa-user"></i>
+                                </div>
+                                <h4 class="text-xl font-semibold text-gray-800 mb-2">内省智能</h4>
+                                <p class="text-gray-600">擅长自我反思、认识自身情感与动机，有强烈的自我意识。</p>
+                            </div>
+                            
+                            <!-- 自然观察智能 -->
+                            <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                                <div class="text-primary text-3xl mb-4">
+                                    <i class="fa fa-leaf"></i>
+                                </div>
+                                <h4 class="text-xl font-semibold text-gray-800 mb-2">自然观察智能</h4>
+                                <p class="text-gray-600">擅长观察、分类与理解自然界事物，对环境变化敏感。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 测试优势 -->
+                    <div class="bg-white rounded-xl shadow-lg p-8 mb-12">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-6 text-center">为什么选择我们的测试？</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="text-center">
+                                <div class="text-primary text-3xl mb-4">
+                                    <i class="fa fa-check-circle"></i>
+                                </div>
+                                <h4 class="text-xl font-semibold text-gray-800 mb-2">科学可靠</h4>
+                                <p class="text-gray-600">基于霍华德·加德纳的多元智能理论，经过科学验证的评估体系。</p>
+                            </div>
+                            
+                            <div class="text-center">
+                                <div class="text-primary text-3xl mb-4">
+                                    <i class="fa fa-bar-chart"></i>
+                                </div>
+                                <h4 class="text-xl font-semibold text-gray-800 mb-2">精准分析</h4>
+                                <p class="text-gray-600">通过AI算法分析你的回答，生成个性化的天赋图谱和详细报告。</p>
+                            </div>
+                            
+                            <div class="text-center">
+                                <div class="text-primary text-3xl mb-4">
+                                    <i class="fa fa-lightbulb-o"></i>
+                                </div>
+                                <h4 class="text-xl font-semibold text-gray-800 mb-2">实用建议</h4>
+                                <p class="text-gray-600">根据你的天赋特点，提供职业选择、学习方法和发展方向的具体建议。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 用户评价 -->
+                    <div class="mb-12">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-6 text-center">用户反馈</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-white rounded-xl shadow-lg p-6">
+                                <div class="flex items-center mb-4">
+                                    <div class="text-yellow-400 flex">
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                    </div>
+                                    <span class="ml-2 text-gray-600">5.0</span>
+                                </div>
+                                <p class="text-gray-600 italic mb-4">"这个测试帮助我发现了自己的空间智能优势，让我重新考虑了职业方向。现在我在设计领域工作得很开心！"</p>
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center mr-3">
+                                        <span>L</span>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-medium text-gray-800">李小明</h5>
+                                        <p class="text-sm text-gray-500">设计师</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white rounded-xl shadow-lg p-6">
+                                <div class="flex items-center mb-4">
+                                    <div class="text-yellow-400 flex">
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star-half-o"></i>
+                                    </div>
+                                    <span class="ml-2 text-gray-600">4.5</span>
+                                </div>
+                                <p class="text-gray-600 italic mb-4">"测试结果非常准确，指出了我的人际智能和语言智能优势。这让我更加确定了自己选择教育行业的决定是正确的。"</p>
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-secondary text-white rounded-full flex items-center justify-center mr-3">
+                                        <span>W</span>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-medium text-gray-800">王小花</h5>
+                                        <p class="text-sm text-gray-500">教师</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 行动召唤 -->
+                    <div class="text-center">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-4">准备好探索你的天赋了吗？</h3>
+                        <p class="text-lg text-gray-600 mb-6">只需15分钟，发现你的潜能，开启新的可能。</p>
+                        <button id="start-test-btn-2" class="bg-gradient text-white text-lg font-medium py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all-300 transform hover:-translate-y-1">
+                            立即开始测试
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 测试说明 -->
+            <section id="section-instructions" class="hidden animate-fade-in">
+                <div class="max-w-3xl mx-auto">
+                    <div class="bg-white rounded-xl shadow-lg p-8">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">测试说明</h2>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">测试目的</h3>
+                            <p class="text-gray-600">本测试基于霍华德·加德纳的多元智能理论，旨在帮助你识别自己在八个智能维度上的相对优势，为你的职业选择、学习方法和个人发展提供参考。</p>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">测试方法</h3>
+                            <p class="text-gray-600">本测试包含64个问题，每个问题都与八个智能维度相关。请根据你的真实情况和感受，选择最符合你的选项：</p>
+                            <ul class="list-disc list-inside mt-2 text-gray-600">
+                                <li><strong>很不符合</strong> - 表示这种描述与你的情况完全不符</li>
+                                <li><strong>不符合</strong> - 表示这种描述与你的情况不太相符</li>
+                                <li><strong>一般</strong> - 表示这种描述与你的情况有些相符</li>
+                                <li><strong>符合</strong> - 表示这种描述与你的情况比较相符</li>
+                                <li><strong>很符合</strong> - 表示这种描述与你的情况完全相符</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">测试时间</h3>
+                            <p class="text-gray-600">完成整个测试大约需要15分钟，请在一个安静、不受干扰的环境中进行测试。</p>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">注意事项</h3>
+                            <ul class="list-disc list-inside text-gray-600">
+                                <li>请根据你的真实情况回答，不要考虑"应该"怎样</li>
+                                <li>每个问题只能选择一个答案</li>
+                                <li>测试过程中可以随时暂停，系统会自动保存你的进度</li>
+                                <li>测试结果仅供参考，不能替代专业职业咨询</li>
+                                <li>测试结果将保存在你的设备上，你可以随时查看</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="flex justify-center mt-8">
+                            <button id="back-to-home-btn" class="bg-gray-200 text-gray-700 font-medium py-2 px-6 rounded-lg mr-4 hover:bg-gray-300 transition-all-300">
+                                返回首页
+                            </button>
+                            <button id="continue-test-btn" class="bg-primary text-white font-medium py-2 px-6 rounded-lg hover:bg-indigo-700 transition-all-300">
+                                开始测试
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 测试页面 -->
+            <section id="section-test" class="hidden animate-fade-in">
+                <div class="max-w-3xl mx-auto">
+                    <!-- 进度条 -->
+                    <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-600">进度</span>
+                            <span class="text-sm font-medium text-primary" id="progress-text">1/64</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-primary h-2.5 rounded-full progress-bar" style="width: 1.56%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 题目卡片 -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 mb-6 question-card">
+                        <div class="flex items-start mb-4">
+                            <span class="bg-primary text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5" id="question-number">1</span>
+                            <h3 class="text-lg font-medium text-gray-800" id="question-text">我喜欢阅读和写作。</h3>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mt-6" id="options-container">
+                            <button class="option-btn border border-gray-300 rounded-lg py-2 px-3 text-center hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50" data-score="1">
+                                <div class="font-medium text-gray-800">1</div>
+                                <div class="text-sm text-gray-600">很不符合</div>
+                            </button>
+                            <button class="option-btn border border-gray-300 rounded-lg py-2 px-3 text-center hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50" data-score="2">
+                                <div class="font-medium text-gray-800">2</div>
+                                <div class="text-sm text-gray-600">不符合</div>
+                            </button>
+                            <button class="option-btn border border-gray-300 rounded-lg py-2 px-3 text-center hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50" data-score="3">
+                                <div class="font-medium text-gray-800">3</div>
+                                <div class="text-sm text-gray-600">一般</div>
+                            </button>
+                            <button class="option-btn border border-gray-300 rounded-lg py-2 px-3 text-center hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50" data-score="4">
+                                <div class="font-medium text-gray-800">4</div>
+                                <div class="text-sm text-gray-600">符合</div>
+                            </button>
+                            <button class="option-btn border border-gray-300 rounded-lg py-2 px-3 text-center hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50" data-score="5">
+                                <div class="font-medium text-gray-800">5</div>
+                                <div class="text-sm text-gray-600">很符合</div>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 导航按钮 -->
+                    <div class="flex justify-between">
+                        <button id="prev-btn" class="bg-gray-200 text-gray-700 font-medium py-2 px-6 rounded-lg hover:bg-gray-300 transition-all-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fa fa-arrow-left mr-2"></i>上一题
+                        </button>
+                        <button id="next-btn" class="bg-primary text-white font-medium py-2 px-6 rounded-lg hover:bg-indigo-700 transition-all-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                            下一题<i class="fa fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 结果页面 -->
+            <section id="section-results" class="hidden animate-fade-in">
+                <div class="max-w-5xl mx-auto">
+                    <!-- 结果概览 -->
+                    <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">你的天赋潜能分析</h2>
+                        
+                        <div class="mb-8">
+                            <div class="flex items-center justify-center mb-4">
+                                <div class="w-16 h-16 bg-gradient rounded-full flex items-center justify-center mr-4">
+                                    <i class="fa fa-star text-white text-2xl"></i>
+                                </div>
+                                <h3 class="text-2xl font-semibold text-gray-800">天赋总览</h3>
+                            </div>
+                            
+                            <div class="radar-chart-container mb-6">
+                                <canvas id="talent-radar-chart"></canvas>
+                            </div>
+                            
+                            <div class="text-center mb-6">
+                                <p class="text-gray-600 mb-2">你的天赋类型：<span class="font-semibold text-primary" id="talent-type">综合型</span></p>
+                                <p class="text-gray-600" id="talent-summary">你在多个智能维度上都有不错的表现，具有较强的适应性和可塑性。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 天赋详情 -->
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-6 text-center">天赋详情分析</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="talent-details">
+                            <!-- 天赋详情将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 职业建议 -->
+                    <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                        <div class="flex items-center justify-center mb-6">
+                            <div class="w-12 h-12 bg-gradient rounded-full flex items-center justify-center mr-3">
+                                <i class="fa fa-briefcase text-white text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-semibold text-gray-800">职业建议</h3>
+                        </div>
+                        
+                        <div class="mb-6" id="career-suggestions">
+                            <!-- 职业建议将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 学习建议 -->
+                    <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                        <div class="flex items-center justify-center mb-6">
+                            <div class="w-12 h-12 bg-gradient rounded-full flex items-center justify-center mr-3">
+                                <i class="fa fa-graduation-cap text-white text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-semibold text-gray-800">学习与发展建议</h3>
+                        </div>
+                        
+                        <div class="mb-6" id="learning-suggestions">
+                            <!-- 学习建议将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 行动计划 -->
+                    <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                        <div class="flex items-center justify-center mb-6">
+                            <div class="w-12 h-12 bg-gradient rounded-full flex items-center justify-center mr-3">
+                                <i class="fa fa-calendar-check-o text-white text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-semibold text-gray-800">行动计划</h3>
+                        </div>
+                        
+                        <div class="mb-6" id="action-plan">
+                            <!-- 行动计划将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 操作按钮 -->
+                    <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
+                        <button id="save-result-btn" class="bg-secondary text-white font-medium py-2 px-6 rounded-lg hover:bg-purple-700 transition-all-300">
+                            <i class="fa fa-save mr-2"></i>保存结果
+                        </button>
+                        <button id="print-result-btn" class="bg-gray-200 text-gray-700 font-medium py-2 px-6 rounded-lg hover:bg-gray-300 transition-all-300">
+                            <i class="fa fa-print mr-2"></i>打印报告
+                        </button>
+                        <button id="restart-test-btn" class="bg-primary text-white font-medium py-2 px-6 rounded-lg hover:bg-indigo-700 transition-all-300">
+                            <i class="fa fa-refresh mr-2"></i>重新测试
+                        </button>
+                        <button id="share-result-btn" class="bg-accent text-white font-medium py-2 px-6 rounded-lg hover:bg-cyan-600 transition-all-300">
+                            <i class="fa fa-share-alt mr-2"></i>分享结果
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 关于测试 -->
+            <section id="section-about" class="hidden animate-fade-in">
+                <div class="max-w-3xl mx-auto">
+                    <div class="bg-white rounded-xl shadow-lg p-8">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">关于天赋潜能测试</h2>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">理论基础</h3>
+                            <p class="text-gray-600 mb-4">本测试基于美国心理学家霍华德·加德纳（Howard Gardner）于1983年提出的多元智能理论（Multiple Intelligences Theory）。加德纳认为，传统的智力理论过于狭窄，只关注语言和逻辑数学能力，而人类实际上拥有多种不同类型的智能。</p>
+                            <p class="text-gray-600">多元智能理论最初提出了七种智能，后来扩展为八种，包括：语言智能、逻辑数学智能、空间智能、音乐智能、身体运动智能、人际智能、内省智能和自然观察智能。每种智能都有其独特的发展轨迹和表现方式。</p>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">智能维度说明</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="font-medium text-gray-800">语言智能</h4>
+                                    <p class="text-gray-600">指对语言的理解和运用能力，包括阅读、写作、口语表达和语言欣赏等方面。</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">逻辑数学智能</h4>
+                                    <p class="text-gray-600">指逻辑推理、数据分析和问题解决的能力，表现为对抽象思维和数字概念的敏感性。</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">空间智能</h4>
+                                    <p class="text-gray-600">指视觉思考和空间想象的能力，包括方向感、空间规划和视觉艺术创作等方面。</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">音乐智能</h4>
+                                    <p class="text-gray-600">指对音乐元素的感知和表达能力，包括音调、节奏、音色的识别和音乐创作等方面。</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">身体运动智能</h4>
+                                    <p class="text-gray-600">指运用身体和手部精细动作的能力，包括身体协调、平衡感和通过身体表达情感等方面。</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">人际智能</h4>
+                                    <p class="text-gray-600">指理解和与他人交往的能力，包括情感识别、沟通技巧和团队协作等方面。</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">内省智能</h4>
+                                    <p class="text-gray-600">指自我认知和反思的能力，包括自我意识、情绪管理和价值观形成等方面。</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">自然观察智能</h4>
+                                    <p class="text-gray-600">指观察和理解自然界的能力，包括分类识别、环境适应和自然科学探索等方面。</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">测试的应用价值</h3>
+                            <p class="text-gray-600 mb-4">天赋潜能测试可以帮助你：</p>
+                            <ul class="list-disc list-inside text-gray-600 space-y-2">
+                                <li>了解自己的智能优势和发展潜力</li>
+                                <li>选择更适合自己的职业方向和学习领域</li>
+                                <li>发现自己可能忽视的天赋和能力</li>
+                                <li>制定个性化的学习和发展计划</li>
+                                <li>提高自我认知和自信心</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">测试的局限性</h3>
+                            <p class="text-gray-600 mb-4">需要注意的是，本测试结果仅供参考，不能作为唯一的评价标准：</p>
+                            <ul class="list-disc list-inside text-gray-600 space-y-2">
+                                <li>智能是动态发展的，测试结果反映的是当前状态</li>
+                                <li>环境和教育对智能发展有重要影响</li>
+                                <li>测试无法完全捕捉个体的全部潜能</li>
+                                <li>职业选择还应考虑兴趣、价值观和社会需求等因素</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">进一步探索</h3>
+                            <p class="text-gray-600">如果你对测试结果感兴趣，想要进一步探索自己的潜能，可以考虑：</p>
+                            <ul class="list-disc list-inside text-gray-600 space-y-2">
+                                <li>寻求专业的职业咨询和指导</li>
+                                <li>参加相关的培训课程和实践活动</li>
+                                <li>阅读有关多元智能理论的专业书籍</li>
+                                <li>与志同道合的人交流和分享经验</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 页脚 -->
+        <footer class="bg-gray-800 text-white py-8">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="mb-4 md:mb-0">
+                        <div class="flex items-center">
+                            <i class="fa fa-star text-primary text-2xl mr-2"></i>
+                            <h2 class="text-xl font-bold">天赋潜能探索测试</h2>
+                        </div>
+                        <p class="text-gray-400 mt-2">发现你的独特天赋，开启无限可能</p>
+                    </div>
+                    
+                    <div class="flex flex-col md:flex-row md:space-x-8">
+                        <div class="mb-4 md:mb-0">
+                            <h3 class="text-lg font-semibold mb-2">快速链接</h3>
+                            <ul class="space-y-1">
+                                <li><a href="#" class="text-gray-400 hover:text-primary transition-all-300" id="footer-home">首页</a></li>
+                                <li><a href="#" class="text-gray-400 hover:text-primary transition-all-300" id="footer-test">开始测试</a></li>
+                                <li><a href="#" class="text-gray-400 hover:text-primary transition-all-300" id="footer-results">测试结果</a></li>
+                                <li><a href="#" class="text-gray-400 hover:text-primary transition-all-300" id="footer-about">关于测试</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">重要提示</h3>
+                            <p class="text-gray-400">本测试结果仅供参考，不能替代专业职业咨询。如有需要，请寻求专业人士的帮助。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400">
+                    <p>&copy; 2025 天赋潜能探索测试. 保留所有权利.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 分享模态框 -->
+    <div id="share-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-gray-800">分享你的天赋报告</h3>
+                <button id="close-share-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <p class="text-gray-600 mb-4">通过以下方式分享你的天赋潜能测试报告：</p>
+                
+                <div class="flex justify-center space-x-4 mb-6">
+                    <button class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-all-300">
+                        <i class="fa fa-weixin"></i>
+                    </button>
+                    <button class="w-10 h-10 bg-blue-400 text-white rounded-full flex items-center justify-center hover:bg-blue-500 transition-all-300">
+                        <i class="fa fa-weibo"></i>
+                    </button>
+                    <button class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center hover:bg-green-700 transition-all-300">
+                        <i class="fa fa-qq"></i>
+                    </button>
+                    <button class="w-10 h-10 bg-blue-800 text-white rounded-full flex items-center justify-center hover:bg-blue-900 transition-all-300">
+                        <i class="fa fa-link"></i>
+                    </button>
+                </div>
+                
+                <div class="relative">
+                    <input type="text" value="https://talent-test.example.com/result/12345" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" readonly>
+                    <button class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary text-white px-3 py-1 rounded hover:bg-indigo-700 transition-all-300">
+                        复制
+                    </button>
+                </div>
+            </div>
+            
+            <div class="flex justify-end">
+                <button id="cancel-share" class="bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg hover:bg-gray-300 transition-all-300">
+                    取消
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // 天赋测试题目数据
+        const talentQuestions = [
+            // 语言智能
+            { id: 1, text: "我喜欢阅读和写作。", factor: "语言智能" },
+            { id: 2, text: "我能用说话表达想法、情绪和需求。", factor: "语言智能" },
+            { id: 3, text: "我能看图说故事，用丰富的词汇编写故事。", factor: "语言智能" },
+            { id: 4, text: "我喜爱讨论、辩论等应用语言文字的活动。", factor: "语言智能" },
+            { id: 5, text: "我善于记人名、地点、日期或琐事细节。", factor: "语言智能" },
+            { id: 6, text: "我喜欢学习新的词汇和表达方式。", factor: "语言智能" },
+            { id: 7, text: "我能轻松理解复杂的书面材料。", factor: "语言智能" },
+            { id: 8, text: "我喜欢玩文字游戏，如填字游戏或拼字游戏。", factor: "语言智能" },
+            
+            // 逻辑数学智能
+            { id: 9, text: "我喜欢解决数学问题或推理逻辑难题。", factor: "逻辑数学智能" },
+            { id: 10, text: "我喜欢有计划地做事(例如：在考试或测验前，我会计划如何温习)。", factor: "逻辑数学智能" },
+            { id: 11, text: "我喜欢观察和寻找事物之间的关系。", factor: "逻辑数学智能" },
+            { id: 12, text: "我喜欢提问，探究事情发生的原因。", factor: "逻辑数学智能" },
+            { id: 13, text: "在看或听故事时，我通常会按故事的情节猜想结局，而且猜中率很高。", factor: "逻辑数学智能" },
+            { id: 14, text: "我喜欢分析数据和统计信息。", factor: "逻辑数学智能" },
+            { id: 15, text: "我擅长制定策略和解决复杂问题。", factor: "逻辑数学智能" },
+            { id: 16, text: "我喜欢思考抽象概念和理论。", factor: "逻辑数学智能" },
+            
+            // 空间智能
+            { id: 17, text: "对我来说，阅读地图、图标比阅读文字容易。", factor: "空间智能" },
+            { id: 18, text: "我喜欢进行绘画、设计或其他视觉创作。", factor: "空间智能" },
+            { id: 19, text: "我能很快理解和记住物体的位置和形状。", factor: "空间智能" },
+            { id: 20, text: "我喜欢看电影和其他视觉表演艺术。", factor: "空间智能" },
+            { id: 21, text: "我喜欢手工、美术、劳作、视觉艺术课。", factor: "空间智能" },
+            { id: 22, text: "我能在脑海中想象物体的三维形状和空间关系。", factor: "空间智能" },
+            { id: 23, text: "我擅长拼图和迷宫游戏。", factor: "空间智能" },
+            { id: 24, text: "我对颜色、形状和图案很敏感。", factor: "空间智能" },
+            
+            // 音乐智能
+            { id: 25, text: "我喜欢听音乐或唱歌。", factor: "音乐智能" },
+            { id: 26, text: "我能够辨别音乐走调。", factor: "音乐智能" },
+            { id: 27, text: "我能跟随音乐的节奏，用动作表达。", factor: "音乐智能" },
+            { id: 28, text: "我会倾听乐曲的内涵，领受音乐的意境(例如：我会知道乐曲是表达快乐或是悲伤或是大自然的和谐等)。", factor: "音乐智能" },
+            { id: 29, text: "我发现有时在走路时，脑海里会出现某个电视节目的音乐或其它的旋律。", factor: "音乐智能" },
+            { id: 30, text: "我能轻松记住歌曲的旋律和歌词。", factor: "音乐智能" },
+            { id: 31, text: "我对声音的高低、强弱和音色很敏感。", factor: "音乐智能" },
+            { id: 32, text: "我喜欢创作音乐或改编现有歌曲。", factor: "音乐智能" },
+            
+            // 身体运动智能
+            { id: 33, text: "我喜欢上体育课或者舞蹈课。", factor: "身体运动智能" },
+            { id: 34, text: "我身体协调能力和平衡性较好。", factor: "身体运动智能" },
+            { id: 35, text: "我至少有一门热爱的运动。", factor: "身体运动智能" },
+            { id: 36, text: "我善于模仿他人的动作、言谈举止。", factor: "身体运动智能" },
+            { id: 37, text: "我听见音乐时，就会摇摆身体或跳舞。", factor: "身体运动智能" },
+            { id: 38, text: "我喜欢通过实践和动手操作来学习。", factor: "身体运动智能" },
+            { id: 39, text: "我擅长精细手工活动，如编织、木工或模型制作。", factor: "身体运动智能" },
+            { id: 40, text: "我能很好地控制自己的身体动作。", factor: "身体运动智能" },
+            
+            // 人际智能
+            { id: 41, text: "我容易结交新朋友。", factor: "人际智能" },
+            { id: 42, text: "我喜欢和朋友一起合作完成一件事。", factor: "人际智能" },
+            { id: 43, text: "我在群体中经常充当领导者或组织者的角色。", factor: "人际智能" },
+            { id: 44, text: "我会倾听别人的说话，懂得互动，沟通良好。", factor: "人际智能" },
+            { id: 45, text: "我具有团队精神，既尽职又努力奉献。", factor: "人际智能" },
+            { id: 46, text: "我能轻易察觉他人的情绪和意图。", factor: "人际智能" },
+            { id: 47, text: "我喜欢帮助他人解决问题。", factor: "人际智能" },
+            { id: 48, text: "我在社交场合感到自在和自信。", factor: "人际智能" },
+            
+            // 内省智能
+            { id: 49, text: "我能恰当表达自己的感受和想法。", factor: "内省智能" },
+            { id: 50, text: "我能集中注意力、按时完成工作。", factor: "内省智能" },
+            { id: 51, text: "我能客观评价自己，知道自己的优缺点。", factor: "内省智能" },
+            { id: 52, text: "我常常做深刻的自我分析，并对自己有清晰的认识。", factor: "内省智能" },
+            { id: 53, text: "我诚实、坦白、勤于反省、勇于认错。", factor: "内省智能" },
+            { id: 54, text: "我喜欢独处和思考问题。", factor: "内省智能" },
+            { id: 55, text: "我有明确的个人目标和价值观。", factor: "内省智能" },
+            { id: 56, text: "我能很好地管理自己的情绪和行为。", factor: "内省智能" },
+            
+            // 自然观察智能
+            { id: 57, text: "我对自然地理环境的形成和发生有浓厚的兴趣。", factor: "自然观察智能" },
+            { id: 58, text: "我对自然界事物具有敏锐的感觉(例如：声音、色彩、气味、香味等)。", factor: "自然观察智能" },
+            { id: 59, text: "我喜爱收集标本、饲养动物、种植花草树木，参加园艺或野外活动。", factor: "自然观察智能" },
+            { id: 60, text: "在往返学校的路上，我喜欢观察周围的景物，并且注意其不同的变化。", factor: "自然观察智能" },
+            { id: 61, text: "我喜欢看云，并看出有不同的形状、高度、明暗度等。", factor: "自然观察智能" },
+            { id: 62, text: "我对动植物的分类和特征很感兴趣。", factor: "自然观察智能" },
+            { id: 63, text: "我喜欢户外活动和探索自然环境。", factor: "自然观察智能" },
+            { id: 64, text: "我关注环境保护和生态平衡问题。", factor: "自然观察智能" }
+        ];
+
+        // 天赋类型定义
+        const talentTypes = {
+            "语言智能": {
+                name: "语言智能",
+                description: "你擅长语言表达、写作与阅读理解，能有效进行沟通和交流。你对文字敏感，善于用语言表达思想和情感。",
+                careers: ["作家", "记者", "教师", "律师", "翻译", "主持人", "演说家", "编辑"],
+                learningTips: [
+                    "多阅读各类书籍和文章，扩展词汇量和知识面",
+                    "练习写作，如日记、博客或创意写作",
+                    "参加辩论、演讲或戏剧表演活动",
+                    "学习新语言或参加语言课程",
+                    "与他人进行深入的对话和讨论"
+                ]
+            },
+            "逻辑数学智能": {
+                name: "逻辑数学智能",
+                description: "你擅长逻辑推理、数据分析与问题解决，思维严密且有条理。你对数字和抽象概念敏感，善于发现事物间的规律和关系。",
+                careers: ["科学家", "工程师", "数学家", "程序员", "会计师", "统计学家", "逻辑学家", "金融分析师"],
+                learningTips: [
+                    "练习解决逻辑题和数学问题",
+                    "学习编程或数据分析技能",
+                    "参与科学实验和研究项目",
+                    "培养批判性思维和系统分析能力",
+                    "学习使用逻辑框架解决问题"
+                ]
+            },
+            "空间智能": {
+                name: "空间智能",
+                description: "你擅长视觉思考、空间想象与方向感，能理解三维空间关系。你对视觉信息敏感，善于通过图像和空间概念思考问题。",
+                careers: ["建筑师", "设计师", "艺术家", "摄影师", "工程师", "飞行员", "地图绘制师", "游戏设计师"],
+                learningTips: [
+                    "练习绘画、素描或其他视觉艺术",
+                    "学习使用设计软件如Photoshop或CAD",
+                    "玩拼图、迷宫或三维模型游戏",
+                    "学习摄影或视频制作",
+                    "练习在脑海中想象和操作物体"
+                ]
+            },
+            "音乐智能": {
+                name: "音乐智能",
+                description: "你擅长理解音调、节奏与音乐结构，对声音敏感且有表现力。你能很好地感知和创造音乐，通过音乐表达情感。",
+                careers: ["音乐家", "作曲家", "音乐教师", "录音工程师", "音乐治疗师", "歌手", "指挥家", "音乐制作人"],
+                learningTips: [
+                    "学习演奏乐器或参加声乐课程",
+                    "分析和欣赏各类音乐作品",
+                    "尝试创作音乐或歌曲",
+                    "参加合唱团或乐队",
+                    "学习音乐理论和历史"
+                ]
+            },
+            "身体运动智能": {
+                name: "身体运动智能",
+                description: "你擅长运用身体、手部精细动作与协调能力，通过身体进行表达。你有良好的身体意识和控制能力，善于通过实践学习。",
+                careers: ["运动员", "舞蹈家", "演员", "手工艺人", "外科医生", "物理治疗师", "厨师", "发明家"],
+                learningTips: [
+                    "参加各类体育活动或舞蹈课程",
+                    "练习手工制作或模型组装",
+                    "通过角色扮演或戏剧活动表达自己",
+                    "学习身体放松和协调技巧",
+                    "参与需要动手操作的实践活动"
+                ]
+            },
+            "人际智能": {
+                name: "人际智能",
+                description: "你擅长理解他人情感、沟通与合作，能很好地在团队中工作。你对人际关系敏感，善于察觉他人的情绪和需求。",
+                careers: ["教师", "心理咨询师", "社会工作者", "销售人员", "管理者", "公关专家", "调解员", "人力资源专家"],
+                learningTips: [
+                    "参与团队项目和合作活动",
+                    "练习积极倾听和有效沟通技巧",
+                    "学习心理学或人际关系课程",
+                    "参与社区服务或志愿活动",
+                    "练习解决冲突和协商技巧"
+                ]
+            },
+            "内省智能": {
+                name: "内省智能",
+                description: "你擅长自我反思、认识自身情感与动机，有强烈的自我意识。你能很好地了解自己的想法和感受，有明确的价值观和目标。",
+                careers: ["哲学家", "心理学家", "作家", "思想家", "顾问", "神职人员", "艺术家", "研究者"],
+                learningTips: [
+                    "定期进行自我反思和日记写作",
+                    "学习冥想或正念练习",
+                    "探索自己的价值观和信仰",
+                    "设定个人目标并跟踪进展",
+                    "阅读关于自我发展和心理学的书籍"
+                ]
+            },
+            "自然观察智能": {
+                name: "自然观察智能",
+                description: "你擅长观察、分类与理解自然界事物，对环境变化敏感。你对大自然充满好奇，善于发现自然界的规律和变化。",
+                careers: ["生物学家", "环保主义者", "园艺师", "地质学家", "兽医", "农民", "自然摄影师", "户外教育者"],
+                learningTips: [
+                    "参与户外活动和自然探索",
+                    "学习识别动植物和自然现象",
+                    "种植植物或饲养动物",
+                    "关注环保问题和生态系统",
+                    "参加自然科学课程或工作坊"
+                ]
+            }
+        };
+
+        // 天赋组合类型
+        const talentCombinations = {
+            "语言-人际": {
+                name: "沟通者",
+                description: "你擅长语言表达和人际交往，能有效地与他人沟通和合作。你适合需要频繁与人交流和表达的工作。"
+            },
+            "逻辑-空间": {
+                name: "分析设计师",
+                description: "你擅长逻辑思维和空间想象，能将抽象概念转化为具体设计。你适合需要分析和创造性解决问题的工作。"
+            },
+            "音乐-身体": {
+                name: "表演艺术家",
+                description: "你擅长音乐表达和身体协调，能通过声音和动作传达情感。你适合需要表演和创意表达的工作。"
+            },
+            "内省-自然": {
+                name: "沉思观察者",
+                description: "你擅长自我反思和观察自然，能从内在和外在世界获取灵感。你适合需要思考和观察的工作。"
+            },
+            "语言-逻辑": {
+                name: "学术研究者",
+                description: "你擅长语言表达和逻辑思维，能清晰地分析和传达复杂概念。你适合需要研究和写作的学术工作。"
+            },
+            "空间-身体": {
+                name: "创意工匠",
+                description: "你擅长空间想象和身体操作，能将创意转化为实际作品。你适合需要动手创作的工作。"
+            },
+            "人际-内省": {
+                name: "辅导顾问",
+                description: "你擅长理解他人和自我反思，能有效地帮助他人成长。你适合需要辅导和咨询的工作。"
+            },
+            "自然-逻辑": {
+                name: "科学探索者",
+                description: "你擅长观察自然和逻辑分析，能发现自然现象中的规律。你适合需要科学研究和探索的工作。"
+            }
+        };
+
+        // 全局变量
+        let currentQuestionIndex = 0;
+        const userAnswers = new Array(64).fill(0);
+        let talentRadarChart = null;
+
+        // DOM元素
+        const sections = {
+            home: document.getElementById('section-home'),
+            instructions: document.getElementById('section-instructions'),
+            test: document.getElementById('section-test'),
+            results: document.getElementById('section-results'),
+            about: document.getElementById('section-about')
+        };
+
+        const navLinks = {
+            home: document.getElementById('nav-home'),
+            test: document.getElementById('nav-test'),
+            results: document.getElementById('nav-results'),
+            about: document.getElementById('nav-about')
+        };
+
+        const mobileNavLinks = {
+            home: document.getElementById('mobile-nav-home'),
+            test: document.getElementById('mobile-nav-test'),
+            results: document.getElementById('mobile-nav-results'),
+            about: document.getElementById('mobile-nav-about')
+        };
+
+        const footerLinks = {
+            home: document.getElementById('footer-home'),
+            test: document.getElementById('footer-test'),
+            results: document.getElementById('footer-results'),
+            about: document.getElementById('footer-about')
+        };
+
+        // 导航函数
+        function showSection(sectionId) {
+            // 隐藏所有部分
+            Object.values(sections).forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // 显示选定部分
+            sections[sectionId].classList.remove('hidden');
+            
+            // 更新导航链接状态
+            Object.values(navLinks).forEach(link => {
+                link.classList.remove('text-primary');
+                link.classList.add('text-gray-600');
+            });
+            
+            if (navLinks[sectionId]) {
+                navLinks[sectionId].classList.remove('text-gray-600');
+                navLinks[sectionId].classList.add('text-primary');
+            }
+            
+            // 更新移动端导航链接状态
+            Object.values(mobileNavLinks).forEach(link => {
+                link.classList.remove('text-primary');
+                link.classList.add('text-gray-600');
+            });
+            
+            if (mobileNavLinks[sectionId]) {
+                mobileNavLinks[sectionId].classList.remove('text-gray-600');
+                mobileNavLinks[sectionId].classList.add('text-primary');
+            }
+        }
+
+        // 初始化测试
+        function initTest() {
+            currentQuestionIndex = 0;
+            updateQuestion();
+            updateProgress();
+            
+            // 禁用上一题按钮
+            document.getElementById('prev-btn').disabled = true;
+            
+            // 禁用下一题按钮（直到选择答案）
+            document.getElementById('next-btn').disabled = true;
+        }
+
+        // 更新问题
+        function updateQuestion() {
+            const question = talentQuestions[currentQuestionIndex];
+            document.getElementById('question-number').textContent = question.id;
+            document.getElementById('question-text').textContent = question.text;
+            
+            // 重置选项按钮
+            const optionButtons = document.querySelectorAll('.option-btn');
+            optionButtons.forEach(btn => {
+                btn.classList.remove('active');
+                if (userAnswers[currentQuestionIndex] > 0) {
+                    if (parseInt(btn.dataset.score) === userAnswers[currentQuestionIndex]) {
+                        btn.classList.add('active');
+                    }
+                }
+            });
+            
+            // 更新导航按钮状态
+            document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
+            document.getElementById('next-btn').disabled = userAnswers[currentQuestionIndex] === 0;
+        }
+
+        // 更新进度
+        function updateProgress() {
+            const progress = ((currentQuestionIndex + 1) / 64) * 100;
+            document.querySelector('.progress-bar').style.width = `${progress}%`;
+            document.getElementById('progress-text').textContent = `${currentQuestionIndex + 1}/64`;
+        }
+
+        // 计算测试结果
+        function calculateResults() {
+            // 计算各因子得分
+            const factorScores = {};
+            const factorCounts = {};
+            
+            // 初始化因子得分和计数
+            Object.keys(talentTypes).forEach(factor => {
+                factorScores[factor] = 0;
+                factorCounts[factor] = 0;
+            });
+            
+            // 计算得分
+            talentQuestions.forEach((question, index) => {
+                const factor = question.factor;
+                factorScores[factor] += userAnswers[index];
+                factorCounts[factor]++;
+            });
+            
+            // 计算平均分
+            const factorAverages = {};
+            Object.keys(factorScores).forEach(factor => {
+                factorAverages[factor] = factorScores[factor] / factorCounts[factor];
+            });
+            
+            // 找出最高得分的因子
+            let highestFactor = null;
+            let highestScore = 0;
+            let secondHighestFactor = null;
+            let secondHighestScore = 0;
+            
+            Object.keys(factorAverages).forEach(factor => {
+                const score = factorAverages[factor];
+                if (score > highestScore) {
+                    secondHighestFactor = highestFactor;
+                    secondHighestScore = highestScore;
+                    highestFactor = factor;
+                    highestScore = score;
+                } else if (score > secondHighestScore) {
+                    secondHighestFactor = factor;
+                    secondHighestScore = score;
+                }
+            });
+            
+            // 确定天赋类型
+            let talentType = "综合型";
+            let talentSummary = "你在多个智能维度上都有不错的表现，具有较强的适应性和可塑性。";
+            
+            // 如果最高分明显高于其他分数
+            if (highestScore >= 4 && highestScore > secondHighestScore + 0.5) {
+                talentType = talentTypes[highestFactor].name;
+                talentSummary = talentTypes[highestFactor].description;
+            } 
+            // 如果有两个较高分数且差距不大
+            else if (highestScore >= 3.5 && secondHighestScore >= 3.5 && highestScore - secondHighestScore < 0.5) {
+                const combinationKey = `${highestFactor}-${secondHighestFactor}`;
+                const reverseCombinationKey = `${secondHighestFactor}-${highestFactor}`;
+                
+                if (talentCombinations[combinationKey]) {
+                    talentType = talentCombinations[combinationKey].name;
+                    talentSummary = talentCombinations[combinationKey].description;
+                } else if (talentCombinations[reverseCombinationKey]) {
+                    talentType = talentCombinations[reverseCombinationKey].name;
+                    talentSummary = talentCombinations[reverseCombinationKey].description;
+                }
+            }
+            
+            return {
+                factorScores,
+                factorAverages,
+                highestFactor,
+                highestScore,
+                secondHighestFactor,
+                secondHighestScore,
+                talentType,
+                talentSummary
+            };
+        }
+
+        // 显示测试结果
+        function showResults() {
+            const results = calculateResults();
+            
+            // 更新天赋类型和总结
+            document.getElementById('talent-type').textContent = results.talentType;
+            document.getElementById('talent-summary').textContent = results.talentSummary;
+            
+            // 更新雷达图
+            updateRadarChart(results.factorAverages);
+            
+            // 更新天赋详情
+            updateTalentDetails(results.factorAverages);
+            
+            // 更新职业建议
+            updateCareerSuggestions(results);
+            
+            // 更新学习建议
+            updateLearningSuggestions(results);
+            
+            // 更新行动计划
+            updateActionPlan(results);
+            
+            // 保存结果到本地存储
+            saveResultToHistory(results);
+            
+            // 显示结果页面
+            showSection('results');
+        }
+
+        // 更新雷达图
+        function updateRadarChart(factorAverages) {
+            const ctx = document.getElementById('talent-radar-chart').getContext('2d');
+            
+            // 销毁旧图表
+            if (talentRadarChart) {
+                talentRadarChart.destroy();
+            }
+            
+            // 准备数据
+            const factors = Object.keys(factorAverages);
+            const scores = factors.map(factor => factorAverages[factor]);
+            
+            // 创建新图表
+            talentRadarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: factors,
+                    datasets: [{
+                        label: '你的得分',
+                        data: scores,
+                        backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                        borderColor: 'rgba(79, 70, 229, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(79, 70, 229, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(79, 70, 229, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            suggestedMin: 1,
+                            suggestedMax: 5,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const score = context.raw.toFixed(2);
+                                    let level = '';
+                                    
+                                    if (score < 2) {
+                                        level = '（发展不足）';
+                                    } else if (score < 3) {
+                                        level = '（一般水平）';
+                                    } else if (score < 4) {
+                                        level = '（良好水平）';
+                                    } else {
+                                        level = '（优秀水平）';
+                                    }
+                                    
+                                    return `得分: ${score} ${level}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 更新天赋详情
+        function updateTalentDetails(factorAverages) {
+            const container = document.getElementById('talent-details');
+            container.innerHTML = '';
+            
+            // 按得分排序
+            const sortedFactors = Object.keys(factorAverages).sort((a, b) => factorAverages[b] - factorAverages[a]);
+            
+            sortedFactors.forEach(factor => {
+                const score = factorAverages[factor];
+                const talentInfo = talentTypes[factor];
+                
+                let levelClass = '';
+                let levelText = '';
+                
+                if (score < 2) {
+                    levelClass = 'bg-red-50 border-red-500';
+                    levelText = '发展不足';
+                } else if (score < 3) {
+                    levelClass = 'bg-yellow-50 border-yellow-500';
+                    levelText = '一般水平';
+                } else if (score < 4) {
+                    levelClass = 'bg-blue-50 border-blue-500';
+                    levelText = '良好水平';
+                } else {
+                    levelClass = 'bg-green-50 border-green-500';
+                    levelText = '优秀水平';
+                }
+                
+                const factorElement = document.createElement('div');
+                factorElement.className = `rounded-lg p-4 border-l-4 ${levelClass}`;
+                
+                factorElement.innerHTML = `
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="text-lg font-semibold text-gray-800">${factor}</h4>
+                        <div class="flex items-center">
+                            <span class="text-sm font-medium mr-2">${score.toFixed(2)}/5</span>
+                            <span class="text-xs px-2 py-1 rounded-full ${score >= 4 ? 'bg-green-100 text-green-800' : score >= 3 ? 'bg-blue-100 text-blue-800' : score >= 2 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}">${levelText}</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-3">${talentInfo.description}</p>
+                    <div class="mt-4">
+                        <h5 class="text-sm font-medium text-gray-700 mb-2">适合职业：</h5>
+                        <div class="flex flex-wrap gap-2">
+                            ${talentInfo.careers.slice(0, 4).map(career => `
+                                <span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">${career}</span>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(factorElement);
+            });
+        }
+
+        // 更新职业建议
+        function updateCareerSuggestions(results) {
+            const container = document.getElementById('career-suggestions');
+            container.innerHTML = '';
+            
+            // 获取得分最高的三个因子
+            const sortedFactors = Object.keys(results.factorAverages).sort((a, b) => results.factorAverages[b] - results.factorAverages[a]).slice(0, 3);
+            
+            // 创建职业建议
+            const suggestionsElement = document.createElement('div');
+            
+            // 如果有明显的主导天赋
+            if (results.highestScore >= 4) {
+                const primaryTalent = talentTypes[results.highestFactor];
+                
+                suggestionsElement.innerHTML = `
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">基于你的${primaryTalent.name}优势，以下是最适合你的职业方向：</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                            ${primaryTalent.careers.map(career => `
+                                <div class="bg-gray-50 rounded-lg p-3 text-center">
+                                    <i class="fa fa-briefcase text-primary mb-2"></i>
+                                    <div class="font-medium">${career}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } 
+            // 如果是综合型或组合型
+            else {
+                suggestionsElement.innerHTML = `
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">基于你的多元智能优势，以下是适合你的职业方向：</h4>
+                    </div>
+                `;
+                
+                // 为每个主要因子添加职业建议
+                sortedFactors.forEach(factor => {
+                    if (results.factorAverages[factor] >= 3) {
+                        const talent = talentTypes[factor];
+                        
+                        const factorSection = document.createElement('div');
+                        factorSection.className = 'mb-6';
+                        factorSection.innerHTML = `
+                            <h5 class="font-medium text-gray-800 mb-2">${talent.name}相关职业：</h5>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                                ${talent.careers.slice(0, 4).map(career => `
+                                    <div class="bg-gray-50 rounded-lg p-3 text-center">
+                                        <i class="fa fa-briefcase text-primary mb-2"></i>
+                                        <div class="font-medium">${career}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        
+                        suggestionsElement.appendChild(factorSection);
+                    }
+                });
+            }
+            
+            // 添加通用建议
+            const generalAdvice = document.createElement('div');
+            generalAdvice.className = 'bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg';
+            generalAdvice.innerHTML = `
+                <h4 class="text-lg font-semibold text-gray-800 mb-2">职业选择建议</h4>
+                <ul class="list-disc list-inside text-gray-600 space-y-1">
+                    <li>选择与你的优势智能相匹配的工作，能让你更容易获得成就感和满足感</li>
+                    <li>考虑工作环境是否能充分发挥你的智能优势</li>
+                    <li>不要忽视你的兴趣和价值观，它们也是职业选择的重要因素</li>
+                    <li>可以尝试在工作中结合多种智能优势，创造独特的工作方式</li>
+                    <li>定期评估你的职业发展是否与你的智能发展相匹配</li>
+                </ul>
+            `;
+            
+            suggestionsElement.appendChild(generalAdvice);
+            container.appendChild(suggestionsElement);
+        }
+
+        // 更新学习建议
+        function updateLearningSuggestions(results) {
+            const container = document.getElementById('learning-suggestions');
+            container.innerHTML = '';
+            
+            // 获取得分最高的两个因子
+            const sortedFactors = Object.keys(results.factorAverages).sort((a, b) => results.factorAverages[b] - results.factorAverages[a]).slice(0, 2);
+            
+            // 创建学习建议
+            const suggestionsElement = document.createElement('div');
+            
+            // 为每个主要因子添加学习建议
+            sortedFactors.forEach(factor => {
+                if (results.factorAverages[factor] >= 3) {
+                    const talent = talentTypes[factor];
+                    
+                    const factorSection = document.createElement('div');
+                    factorSection.className = 'mb-6';
+                    factorSection.innerHTML = `
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">如何发展你的${talent.name}：</h4>
+                        <ul class="list-disc list-inside text-gray-600 space-y-2">
+                            ${talent.learningTips.map(tip => `<li>${tip}</li>`).join('')}
+                        </ul>
+                    `;
+                    
+                    suggestionsElement.appendChild(factorSection);
+                }
+            });
+            
+            // 添加通用学习建议
+            const generalAdvice = document.createElement('div');
+            generalAdvice.className = 'bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg';
+            generalAdvice.innerHTML = `
+                <h4 class="text-lg font-semibold text-gray-800 mb-2">通用学习策略</h4>
+                <ul class="list-disc list-inside text-gray-600 space-y-1">
+                    <li>了解自己的学习风格，选择适合自己的学习方法</li>
+                    <li>创造有利于发挥你优势智能的学习环境</li>
+                    <li>尝试将不同的智能结合起来学习，提高学习效果</li>
+                    <li>定期反思和评估你的学习进展</li>
+                    <li>寻找能指导你发展优势智能的导师或资源</li>
+                </ul>
+            `;
+            
+            suggestionsElement.appendChild(generalAdvice);
+            container.appendChild(suggestionsElement);
+        }
+
+        // 更新行动计划
+        function updateActionPlan(results) {
+            const container = document.getElementById('action-plan');
+            container.innerHTML = '';
+            
+            // 获取得分最高的三个因子
+            const topFactors = Object.keys(results.factorAverages).sort((a, b) => results.factorAverages[b] - results.factorAverages[a]).slice(0, 3);
+            
+            // 获取得分最低的两个因子
+            const lowFactors = Object.keys(results.factorAverages).sort((a, b) => results.factorAverages[a] - results.factorAverages[b]).slice(0, 2);
+            
+            const planElement = document.createElement('div');
+            planElement.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">短期计划（1-3个月）</h4>
+                        <ul class="list-disc list-inside text-gray-600 space-y-2">
+                            <li>深入了解你最突出的智能：${topFactors[0]}</li>
+                            <li>尝试一项新的活动，专门发展你的${topFactors[1]}能力</li>
+                            <li>每周花30分钟反思你的学习和成长</li>
+                            <li>寻找一个能指导你发展${topFactors[0]}的导师或榜样</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">中期计划（3-6个月）</h4>
+                        <ul class="list-disc list-inside text-gray-600 space-y-2">
+                            <li>参加一个与你的${topFactors[0]}相关的课程或工作坊</li>
+                            <li>在日常生活中刻意练习发展你的${lowFactors[0]}能力</li>
+                            <li>尝试将你的${topFactors[0]}和${topFactors[1]}结合起来解决问题</li>
+                            <li>记录你的进步和成就，建立自信</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-3">长期计划（6-12个月）</h4>
+                    <ul class="list-disc list-inside text-gray-600 space-y-2">
+                        <li>在工作或学习中承担更多能发挥你${topFactors[0]}优势的责任</li>
+                        <li>开始一个长期项目，综合运用你的多种智能</li>
+                        <li>帮助他人发展他们的智能优势，同时巩固自己的知识</li>
+                        <li>定期重新评估你的智能发展状况，调整发展计划</li>
+                    </ul>
+                </div>
+                
+                <div class="mt-6 bg-purple-50 border-l-4 border-purple-500 p-4 rounded-r-lg">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-2">成功的关键</h4>
+                    <p class="text-gray-600">记住，智能是可以发展的。通过持续的学习和实践，你可以不断提升自己的能力。最重要的是，找到能让你充分发挥优势的环境和机会，做真正的自己。</p>
+                </div>
+            `;
+            
+            container.appendChild(planElement);
+        }
+
+        // 保存结果到历史记录
+        function saveResultToHistory(results) {
+            const history = JSON.parse(localStorage.getItem('talentTestHistory') || '[]');
+            
+            const newRecord = {
+                id: Date.now(),
+                date: new Date().toLocaleString(),
+                results: results
+            };
+            
+            history.push(newRecord);
+            localStorage.setItem('talentTestHistory', JSON.stringify(history));
+        }
+
+        // 事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            // 导航链接事件
+            navLinks.home.addEventListener('click', function(e) {
+                e.preventDefault();
+                showSection('home');
+            });
+            
+            navLinks.test.addEventListener('click', function(e) {
+                e.preventDefault();
+                showSection('instructions');
+            });
+            
+            navLinks.results.addEventListener('click', function(e) {
+                e.preventDefault();
+                // 检查是否有测试结果
+                const history = JSON.parse(localStorage.getItem('talentTestHistory') || '[]');
+                if (history.length > 0) {
+                    // 使用最新的测试结果
+                    const latestResult = history[history.length - 1].results;
+                    
+                    // 更新天赋类型和总结
+                    document.getElementById('talent-type').textContent = latestResult.talentType;
+                    document.getElementById('talent-summary').textContent = latestResult.talentSummary;
+                    
+                    // 更新雷达图
+                    updateRadarChart(latestResult.factorAverages);
+                    
+                    // 更新天赋详情
+                    updateTalentDetails(latestResult.factorAverages);
+                    
+                    // 更新职业建议
+                    updateCareerSuggestions(latestResult);
+                    
+                    // 更新学习建议
+                    updateLearningSuggestions(latestResult);
+                    
+                    // 更新行动计划
+                    updateActionPlan(latestResult);
+                    
+                    showSection('results');
+                } else {
+                    // 如果没有测试结果，显示测试说明
+                    showSection('instructions');
+                }
+            });
+            
+            navLinks.about.addEventListener('click', function(e) {
+                e.preventDefault();
+                showSection('about');
+            });
+            
+            // 移动端导航链接事件
+            mobileNavLinks.home.addEventListener('click', function(e) {
+                e.preventDefault();
+                showSection('home');
+                document.getElementById('mobile-menu').classList.add('hidden');
+            });
+            
+            mobileNavLinks.test.addEventListener('click', function(e) {
+                e.preventDefault();
+                showSection('instructions');
+                document.getElementById('mobile-menu').classList.add('hidden');
+            });
+            
+            mobileNavLinks.results.addEventListener('click', function(e) {
+                e.preventDefault();
+                // 检查是否有测试结果
+                const history = JSON.parse(localStorage.getItem('talentTestHistory') || '[]');
+                if (history.length > 0) {
+                    // 使用最新的测试结果
+                    const latestResult = history[history.length - 1].results;
+                    
+                    // 更新天赋类型和总结
+                    document.getElementById('talent-type').textContent = latestResult.talentType;
+                    document.getElementById('talent-summary').textContent = latestResult.talentSummary;
+                    
+                    // 更新雷达图
+                    updateRadarChart(latestResult.factorAverages);
+                    
+                    // 更新天赋详情
+                    updateTalentDetails(latestResult.factorAverages);
+                    
+                    // 更新职业建议
+                    updateCareerSuggestions(latestResult);
+                    
+                    // 更新学习建议
+                    updateLearningSuggestions(latestResult);
+                    
+                    // 更新行动计划
+                    updateActionPlan(latestResult);
+                    
+                    showSection('results');
+                } else {
+                    // 如果没有测试结果，显示测试说明
+                    showSection('instructions');
+                }
+                document.getElementById('mobile-menu').classList.add('hidden');
+            });
+            
+            mobileNavLinks.about.addEventListener('click', function(e) {
+                e.preventDefault();
+                showSection('about');
+                document.getElementById('mobile-menu').classList.add('hidden');
+            });
+            
+            // 页脚链接事件
+            footerLinks.home.addEventListener('click', function(e) {
+                e.preventDefault();
+                showSection('home');
+            });
+            
+            footerLinks.test.addEventListener('click', function(e) {
+                e.preventDefault();
+                showSection('instructions');
+            });
+            
+            footerLinks.results.addEventListener('click', function(e) {
+                e.preventDefault();
+                // 检查是否有测试结果
+                const history = JSON.parse(localStorage.getItem('talentTestHistory') || '[]');
+                if (history.length > 0) {
+                    // 使用最新的测试结果
+                    const latestResult = history[history.length - 1].results;
+                    
+                    // 更新天赋类型和总结
+                    document.getElementById('talent-type').textContent = latestResult.talentType;
+                    document.getElementById('talent-summary').textContent = latestResult.talentSummary;
+                    
+                    // 更新雷达图
+                    updateRadarChart(latestResult.factorAverages);
+                    
+                    // 更新天赋详情
+                    updateTalentDetails(latestResult.factorAverages);
+                    
+                    // 更新职业建议
+                    updateCareerSuggestions(latestResult);
+                    
+                    // 更新学习建议
+                    updateLearningSuggestions(latestResult);
+                    
+                    // 更新行动计划
+                    updateActionPlan(latestResult);
+                    
+                    showSection('results');
+                } else {
+                    // 如果没有测试结果，显示测试说明
+                    showSection('instructions');
+                }
+            });
+            
+            footerLinks.about.addEventListener('click', function(e) {
+                e.preventDefault();
+                showSection('about');
+            });
+            
+            // 移动端菜单按钮
+            document.getElementById('mobile-menu-button').addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.toggle('hidden');
+            });
+            
+            // 开始测试按钮
+            document.getElementById('start-test-btn').addEventListener('click', function() {
+                showSection('instructions');
+            });
+            
+            document.getElementById('start-test-btn-2').addEventListener('click', function() {
+                showSection('instructions');
+            });
+            
+            // 返回首页按钮
+            document.getElementById('back-to-home-btn').addEventListener('click', function() {
+                showSection('home');
+            });
+            
+            // 继续测试按钮
+            document.getElementById('continue-test-btn').addEventListener('click', function() {
+                initTest();
+                showSection('test');
+            });
+            
+            // 选项按钮事件
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除其他选项的active类
+                    document.querySelectorAll('.option-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    
+                    // 添加当前选项的active类
+                    this.classList.add('active');
+                    
+                    // 保存答案
+                    userAnswers[currentQuestionIndex] = parseInt(this.dataset.score);
+                    
+                    // 启用下一题按钮
+                    document.getElementById('next-btn').disabled = false;
+                });
+            });
+            
+            // 上一题按钮
+            document.getElementById('prev-btn').addEventListener('click', function() {
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    updateQuestion();
+                    updateProgress();
+                }
+            });
+            
+            // 下一题按钮
+            document.getElementById('next-btn').addEventListener('click', function() {
+                if (currentQuestionIndex < 63) {
+                    currentQuestionIndex++;
+                    updateQuestion();
+                    updateProgress();
+                } else {
+                    // 完成测试，显示结果
+                    showResults();
+                }
+            });
+            
+            // 保存结果按钮
+            document.getElementById('save-result-btn').addEventListener('click', function() {
+                alert('结果已自动保存到本地存储中。');
+            });
+            
+            // 打印报告按钮
+            document.getElementById('print-result-btn').addEventListener('click', function() {
+                window.print();
+            });
+            
+            // 重新测试按钮
+            document.getElementById('restart-test-btn').addEventListener('click', function() {
+                // 重置答案
+                userAnswers.fill(0);
+                
+                // 初始化测试
+                initTest();
+                
+                // 显示测试页面
+                showSection('test');
+            });
+            
+            // 分享结果按钮
+            document.getElementById('share-result-btn').addEventListener('click', function() {
+                document.getElementById('share-modal').classList.remove('hidden');
+            });
+            
+            // 关闭分享模态框
+            document.getElementById('close-share-modal').addEventListener('click', function() {
+                document.getElementById('share-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('cancel-share').addEventListener('click', function() {
+                document.getElementById('share-modal').classList.add('hidden');
+            });
+            
+            // 点击模态框外部关闭
+            document.getElementById('share-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.add('hidden');
+                }
+            });
+            
+            // 显示首页
+            showSection('home');
+        });
+    </script>
+</body>
+</html>
